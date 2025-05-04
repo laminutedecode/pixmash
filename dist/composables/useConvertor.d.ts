@@ -6,7 +6,18 @@ import { ConversionOptions, FileInfo } from '../types';
 export declare const useConvertor: () => {
     files: import("vue").Ref<{
         id: string;
-        file: File;
+        file: {
+            readonly lastModified: number;
+            readonly name: string;
+            readonly webkitRelativePath: string;
+            readonly size: number;
+            readonly type: string;
+            arrayBuffer: () => Promise<ArrayBuffer>;
+            bytes: () => Promise<Uint8Array>;
+            slice: (start?: number, end?: number, contentType?: string) => Blob;
+            stream: () => ReadableStream<Uint8Array>;
+            text: () => Promise<string>;
+        };
         originalSize: number;
         convertedSize?: number | undefined;
         outputFormat?: import("../types").OutputFormat | undefined;
@@ -15,7 +26,18 @@ export declare const useConvertor: () => {
         error?: string | undefined;
     }[], FileInfo[] | {
         id: string;
-        file: File;
+        file: {
+            readonly lastModified: number;
+            readonly name: string;
+            readonly webkitRelativePath: string;
+            readonly size: number;
+            readonly type: string;
+            arrayBuffer: () => Promise<ArrayBuffer>;
+            bytes: () => Promise<Uint8Array>;
+            slice: (start?: number, end?: number, contentType?: string) => Blob;
+            stream: () => ReadableStream<Uint8Array>;
+            text: () => Promise<string>;
+        };
         originalSize: number;
         convertedSize?: number | undefined;
         outputFormat?: import("../types").OutputFormat | undefined;
