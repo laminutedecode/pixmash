@@ -106,12 +106,104 @@ var resizeImageIfNeeded = function (img, maxDimension) {
     }
     return { width: width, height: height };
 };
+var applyWatermark = function (canvas, ctx, watermark) { return __awaiter(void 0, void 0, void 0, function () {
+    var width, height, x, y, fontSize, fontFamily, textMetrics, textWidth, textHeight;
+    return __generator(this, function (_a) {
+        width = canvas.width;
+        height = canvas.height;
+        // Save the current context state
+        ctx.save();
+        // Set opacity
+        ctx.globalAlpha = watermark.opacity !== undefined ? watermark.opacity : 0.5;
+        x = 0;
+        y = 0;
+        if (watermark.type === 'text') {
+            fontSize = watermark.size !== undefined ? Math.floor(height * watermark.size / 100) : Math.floor(height * 0.05);
+            fontFamily = watermark.font || 'Arial';
+            ctx.font = "".concat(fontSize, "px ").concat(fontFamily);
+            ctx.fillStyle = watermark.color || '#ffffff';
+            textMetrics = ctx.measureText(watermark.content);
+            textWidth = textMetrics.width;
+            textHeight = fontSize;
+            switch (watermark.position) {
+                case 'top-left':
+                    x = 20;
+                    y = 20 + textHeight;
+                    break;
+                case 'top-right':
+                    x = width - textWidth - 20;
+                    y = 20 + textHeight;
+                    break;
+                case 'bottom-left':
+                    x = 20;
+                    y = height - 20;
+                    break;
+                case 'bottom-right':
+                    x = width - textWidth - 20;
+                    y = height - 20;
+                    break;
+                case 'center':
+                default:
+                    x = (width - textWidth) / 2;
+                    y = (height + textHeight) / 2;
+                    break;
+            }
+            ctx.fillText(watermark.content, x, y);
+        }
+        else if (watermark.type === 'image') {
+            // Apply image watermark
+            return [2 /*return*/, new Promise(function (resolve, reject) {
+                    var img = new Image();
+                    img.crossOrigin = 'anonymous';
+                    img.onload = function () {
+                        var imgSize = watermark.size || Math.min(width, height) * 0.2;
+                        var aspectRatio = img.width / img.height;
+                        var watermarkWidth = imgSize;
+                        var watermarkHeight = imgSize / aspectRatio;
+                        switch (watermark.position) {
+                            case 'top-left':
+                                x = 20;
+                                y = 20;
+                                break;
+                            case 'top-right':
+                                x = width - watermarkWidth - 20;
+                                y = 20;
+                                break;
+                            case 'bottom-left':
+                                x = 20;
+                                y = height - watermarkHeight - 20;
+                                break;
+                            case 'bottom-right':
+                                x = width - watermarkWidth - 20;
+                                y = height - watermarkHeight - 20;
+                                break;
+                            case 'center':
+                            default:
+                                x = (width - watermarkWidth) / 2;
+                                y = (height - watermarkHeight) / 2;
+                                break;
+                        }
+                        ctx.drawImage(img, x, y, watermarkWidth, watermarkHeight);
+                        resolve();
+                    };
+                    img.onerror = function () {
+                        console.error('Failed to load watermark image');
+                        resolve(); // Continue without watermark rather than failing
+                    };
+                    img.src = watermark.content;
+                })];
+        }
+        // Restore the context state
+        ctx.restore();
+        return [2 /*return*/];
+    });
+}); };
 var compressImage = function (file_1, compressionMode_1) {
     var args_1 = [];
     for (var _i = 2; _i < arguments.length; _i++) {
         args_1[_i - 2] = arguments[_i];
     }
-    return __awaiter(void 0, __spreadArray([file_1, compressionMode_1], args_1, true), void 0, function (file, compressionMode, quality) {
+    return __awaiter(void 0, __spreadArray([file_1, compressionMode_1], args_1, true), void 0, function (file, compressionMode, quality, watermark) {
         if (quality === void 0) { quality = compressionMode === 'lossy' ? 80 : 100; }
         return __generator(this, function (_a) {
             return [2 /*return*/, new Promise(function (resolve, reject) {
@@ -119,108 +211,121 @@ var compressImage = function (file_1, compressionMode_1) {
                     reader.onload = function (event) {
                         var _a;
                         var img = new Image();
-                        img.onload = function () {
-                            var _a;
-                            var _b = resizeImageIfNeeded(img), width = _b.width, height = _b.height;
-                            var canvas = document.createElement('canvas');
-                            canvas.width = width;
-                            canvas.height = height;
-                            var ctx = canvas.getContext('2d', {
-                                alpha: file.type.includes('png') || file.type.includes('svg'),
-                                willReadFrequently: true
-                            });
-                            if (!ctx) {
-                                reject(new Error('Failed to get canvas context'));
-                                return;
-                            }
-                            ctx.imageSmoothingEnabled = true;
-                            ctx.imageSmoothingQuality = 'high';
-                            ctx.drawImage(img, 0, 0, width, height);
-                            var originalFormat = ((_a = file.type.split('/')[1]) === null || _a === void 0 ? void 0 : _a.toLowerCase()) || 'jpeg';
-                            var mimeType = 'image/jpeg';
-                            var bestQuality = compressionMode === 'lossy' ? quality / 100 : 0.92;
-                            if (compressionMode === 'lossless') {
-                                if (originalFormat === 'png' || originalFormat === 'gif') {
-                                    mimeType = 'image/png';
-                                    bestQuality = null;
-                                }
-                                else if (originalFormat === 'webp') {
-                                    mimeType = 'image/webp';
-                                    bestQuality = 1.0;
-                                }
-                                else {
-                                    mimeType = 'image/jpeg';
-                                    bestQuality = 0.95;
-                                }
-                            }
-                            else {
-                                if (originalFormat === 'webp') {
-                                    mimeType = 'image/webp';
-                                }
-                                else {
-                                    mimeType = 'image/jpeg';
-                                }
-                                var pixelCount = width * height;
-                                if (pixelCount > 4000000) { // >4 mégapixels
-                                    bestQuality = Math.max(0.65, bestQuality * 0.85);
-                                }
-                                bestQuality = Math.max(0.3, Math.min(bestQuality, 0.9));
-                            }
-                            var tryCompression = function (currentQuality) {
-                                canvas.toBlob(function (blob) {
-                                    if (!blob) {
-                                        reject(new Error('Failed to compress image'));
-                                        return;
-                                    }
-                                    if (blob.size >= file.size * 0.95) {
-                                        if (compressionMode === 'lossy' && currentQuality && currentQuality > 0.4) {
-                                            tryCompression(currentQuality - 0.1);
-                                            return;
+                        img.onload = function () { return __awaiter(void 0, void 0, void 0, function () {
+                            var _a, width, height, canvas, ctx, originalFormat, mimeType, bestQuality, pixelCount, tryCompression;
+                            var _b;
+                            return __generator(this, function (_c) {
+                                switch (_c.label) {
+                                    case 0:
+                                        _a = resizeImageIfNeeded(img), width = _a.width, height = _a.height;
+                                        canvas = document.createElement('canvas');
+                                        canvas.width = width;
+                                        canvas.height = height;
+                                        ctx = canvas.getContext('2d', {
+                                            alpha: file.type.includes('png') || file.type.includes('svg'),
+                                            willReadFrequently: true
+                                        });
+                                        if (!ctx) {
+                                            reject(new Error('Failed to get canvas context'));
+                                            return [2 /*return*/];
                                         }
-                                        if (width > 1600 || height > 1600) {
-                                            var newCanvas = document.createElement('canvas');
-                                            var newWidth = Math.round(width * 0.75);
-                                            var newHeight = Math.round(height * 0.75);
-                                            newCanvas.width = newWidth;
-                                            newCanvas.height = newHeight;
-                                            var newCtx = newCanvas.getContext('2d');
-                                            if (newCtx) {
-                                                newCtx.drawImage(img, 0, 0, newWidth, newHeight);
-                                                newCanvas.toBlob(function (resizedBlob) {
-                                                    if (!resizedBlob || resizedBlob.size >= file.size * 0.95) {
+                                        ctx.imageSmoothingEnabled = true;
+                                        ctx.imageSmoothingQuality = 'high';
+                                        ctx.drawImage(img, 0, 0, width, height);
+                                        if (!watermark) return [3 /*break*/, 2];
+                                        return [4 /*yield*/, applyWatermark(canvas, ctx, watermark)];
+                                    case 1:
+                                        _c.sent();
+                                        _c.label = 2;
+                                    case 2:
+                                        originalFormat = ((_b = file.type.split('/')[1]) === null || _b === void 0 ? void 0 : _b.toLowerCase()) || 'jpeg';
+                                        mimeType = 'image/jpeg';
+                                        bestQuality = compressionMode === 'lossy' ? quality / 100 : 0.92;
+                                        if (compressionMode === 'lossless') {
+                                            if (originalFormat === 'png' || originalFormat === 'gif') {
+                                                mimeType = 'image/png';
+                                                bestQuality = null;
+                                            }
+                                            else if (originalFormat === 'webp') {
+                                                mimeType = 'image/webp';
+                                                bestQuality = 1.0;
+                                            }
+                                            else {
+                                                mimeType = 'image/jpeg';
+                                                bestQuality = 0.95;
+                                            }
+                                        }
+                                        else {
+                                            if (originalFormat === 'webp') {
+                                                mimeType = 'image/webp';
+                                            }
+                                            else {
+                                                mimeType = 'image/jpeg';
+                                            }
+                                            pixelCount = width * height;
+                                            if (pixelCount > 4000000) { // >4 mégapixels
+                                                bestQuality = Math.max(0.65, bestQuality * 0.85);
+                                            }
+                                            bestQuality = Math.max(0.3, Math.min(bestQuality, 0.9));
+                                        }
+                                        tryCompression = function (currentQuality) {
+                                            canvas.toBlob(function (blob) {
+                                                if (!blob) {
+                                                    reject(new Error('Failed to compress image'));
+                                                    return;
+                                                }
+                                                if (blob.size >= file.size * 0.95) {
+                                                    if (compressionMode === 'lossy' && currentQuality && currentQuality > 0.4) {
+                                                        tryCompression(currentQuality - 0.1);
+                                                        return;
+                                                    }
+                                                    if (width > 1600 || height > 1600) {
+                                                        var newCanvas = document.createElement('canvas');
+                                                        var newWidth = Math.round(width * 0.75);
+                                                        var newHeight = Math.round(height * 0.75);
+                                                        newCanvas.width = newWidth;
+                                                        newCanvas.height = newHeight;
+                                                        var newCtx = newCanvas.getContext('2d');
+                                                        if (newCtx) {
+                                                            newCtx.drawImage(img, 0, 0, newWidth, newHeight);
+                                                            newCanvas.toBlob(function (resizedBlob) {
+                                                                if (!resizedBlob || resizedBlob.size >= file.size * 0.95) {
+                                                                    resolve({
+                                                                        compressedBlob: file,
+                                                                        compressedUrl: URL.createObjectURL(file)
+                                                                    });
+                                                                }
+                                                                else {
+                                                                    var compressedUrl = URL.createObjectURL(resizedBlob);
+                                                                    resolve({ compressedBlob: resizedBlob, compressedUrl: compressedUrl });
+                                                                }
+                                                            }, mimeType, compressionMode === 'lossy' ? 0.7 : undefined);
+                                                        }
+                                                        else {
+                                                            resolve({
+                                                                compressedBlob: file,
+                                                                compressedUrl: URL.createObjectURL(file)
+                                                            });
+                                                        }
+                                                    }
+                                                    else {
                                                         resolve({
                                                             compressedBlob: file,
                                                             compressedUrl: URL.createObjectURL(file)
                                                         });
                                                     }
-                                                    else {
-                                                        var compressedUrl = URL.createObjectURL(resizedBlob);
-                                                        resolve({ compressedBlob: resizedBlob, compressedUrl: compressedUrl });
-                                                    }
-                                                }, mimeType, compressionMode === 'lossy' ? 0.7 : undefined);
-                                            }
-                                            else {
-                                                resolve({
-                                                    compressedBlob: file,
-                                                    compressedUrl: URL.createObjectURL(file)
-                                                });
-                                            }
-                                        }
-                                        else {
-                                            resolve({
-                                                compressedBlob: file,
-                                                compressedUrl: URL.createObjectURL(file)
-                                            });
-                                        }
-                                    }
-                                    else {
-                                        var compressedUrl = URL.createObjectURL(blob);
-                                        resolve({ compressedBlob: blob, compressedUrl: compressedUrl });
-                                    }
-                                }, mimeType, currentQuality || undefined);
-                            };
-                            tryCompression(bestQuality);
-                        };
+                                                }
+                                                else {
+                                                    var compressedUrl = URL.createObjectURL(blob);
+                                                    resolve({ compressedBlob: blob, compressedUrl: compressedUrl });
+                                                }
+                                            }, mimeType, currentQuality || undefined);
+                                        };
+                                        tryCompression(bestQuality);
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); };
                         img.onerror = function () {
                             reject(new Error('Failed to load image'));
                         };
@@ -246,7 +351,7 @@ var convertFile = function (fileInfo, options) { return __awaiter(void 0, void 0
         switch (_c.label) {
             case 0:
                 _c.trys.push([0, 2, , 3]);
-                return [4 /*yield*/, compressImage(fileInfo.file, options.compressionMode, options.compressionMode === 'lossy' ? options.quality : 100)];
+                return [4 /*yield*/, compressImage(fileInfo.file, options.compressionMode, options.compressionMode === 'lossy' ? options.quality : 100, options.watermark)];
             case 1:
                 _a = _c.sent(), compressedBlob = _a.compressedBlob, compressedUrl = _a.compressedUrl;
                 finalBlob = compressedBlob;

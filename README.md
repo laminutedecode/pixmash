@@ -18,23 +18,23 @@ npm install pixmash
 yarn add pixmash
 ```
 
-### Interactive Installation
+### Installation interactive
 
-During installation, Pixmash will ask you **which framework you are using** and if you use **TypeScript**. This allows the installation to be optimized by keeping only the files necessary for your development environment.
+Pendant l'installation, Pixmash vous demandera **quel framework vous utilisez** et si vous utilisez **TypeScript**. Cela permet d'optimiser l'installation en ne conservant que les fichiers nécessaires à votre environnement de développement.
 
-Available options:
-- **React**: Only installs React hooks and core utilities
-- **Vue.js**: Only installs Vue composables and core utilities
-- **Vanilla JavaScript**: Only installs JS classes and core utilities
-- **Complete Installation**: Installs all components for all frameworks
+Options disponibles :
+- **React**: N'installe que les hooks React et les utilitaires de base
+- **Vue.js**: N'installe que les composables Vue et les utilitaires de base
+- **JavaScript Vanilla**: N'installe que les classes JS et les utilitaires de base
+- **Installation complète**: Installe tous les composants pour tous les frameworks
 
-To skip the interactive installation (for example in a CI/CD environment), you can set an environment variable:
+Pour ignorer l'installation interactive (par exemple dans un environnement CI/CD), vous pouvez définir une variable d'environnement :
 
 ```bash
-# For CI/CD environments
+# Pour les environnements CI/CD
 PIXMASH_SKIP_POSTINSTALL=1 npm install pixmash
 
-# For development installations
+# Pour les installations de développement
 npm install pixmash --dev
 ```
 

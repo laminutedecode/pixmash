@@ -1,6 +1,6 @@
 {
   "name": "pixmash",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Universal image compression and conversion library for JavaScript applications",
 
   "repository": {

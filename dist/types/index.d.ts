@@ -14,6 +14,16 @@ export interface ConversionOptions {
     outputFormat: OutputFormat;
     compressionMode: CompressionMode;
     quality?: number;
+    watermark?: WatermarkOptions;
+}
+export interface WatermarkOptions {
+    type: 'text' | 'image';
+    content: string;
+    position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center';
+    opacity?: number;
+    size?: number;
+    color?: string;
+    font?: string;
 }
 export type ReactSetState<T> = ((prevState: T) => T) | T;
 export type ReactDispatch<T> = (value: ReactSetState<T>) => void;
@@ -24,6 +34,7 @@ export interface CompressorResult {
 export interface CompressorOptions {
     compressionMode: CompressionMode;
     quality?: number;
+    watermark?: WatermarkOptions;
 }
 export interface ConvertorOptions extends CompressorOptions {
     outputFormat: OutputFormat;
