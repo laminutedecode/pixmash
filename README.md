@@ -18,26 +18,6 @@ npm install pixmash
 yarn add pixmash
 ```
 
-### Installation interactive
-
-Pendant l'installation, Pixmash vous demandera **quel framework vous utilisez** et si vous utilisez **TypeScript**. Cela permet d'optimiser l'installation en ne conservant que les fichiers nécessaires à votre environnement de développement.
-
-Options disponibles :
-- **React**: N'installe que les hooks React et les utilitaires de base
-- **Vue.js**: N'installe que les composables Vue et les utilitaires de base
-- **JavaScript Vanilla**: N'installe que les classes JS et les utilitaires de base
-- **Installation complète**: Installe tous les composants pour tous les frameworks
-
-Pour ignorer l'installation interactive (par exemple dans un environnement CI/CD), vous pouvez définir une variable d'environnement :
-
-```bash
-# Pour les environnements CI/CD
-PIXMASH_SKIP_POSTINSTALL=1 npm install pixmash
-
-# Pour les installations de développement
-npm install pixmash --dev
-```
-
 ## Usage
 
 ### React
@@ -312,22 +292,17 @@ Pixmash supports various batch processing options that can be configured when co
 // With React
 const { convertAllFiles } = useConvertor();
 
-// Batch processing with advanced options
+// Batch processing with options
 convertAllFiles({
   outputFormat: 'webp',
   compressionMode: 'lossy',
-  quality: 85,
-  // Advanced batch options (coming soon)
-  // batchSize: 3,           // Process images in smaller batches to avoid memory issues
-  // parallelProcessing: 2,  // Process multiple images at once for faster conversion
-  // maxDimension: 1920,     // Maximum width/height for any image
-  // preserveExif: false     // Whether to preserve EXIF metadata
+  quality: 85
 });
 ```
 
 ### Watermarking
 
-Pixmash now supports adding text or image watermarks to your converted images:
+Pixmash supports adding text or image watermarks to your converted images:
 
 ```javascript
 // With React
@@ -366,21 +341,6 @@ convertAllFiles({
 
 Watermark positions can be: `'top-left'`, `'top-right'`, `'bottom-left'`, `'bottom-right'`, or `'center'`.
 
-### Roadmap
-
-We're planning to add the following features in upcoming releases:
-
-1. **SVG Support**: Convert raster images to SVG for scalable graphics
-2. **Custom Naming Templates**: Define custom naming patterns for converted files
-3. **EXIF Data Preservation**: Option to preserve or strip EXIF metadata
-4. **Image Effects**: Simple filters and effects that can be applied during conversion
-5. ✅ **Watermarking**: Add text or image watermarks to your converted images
-6. **Progressive Loading**: Create progressive JPEGs for better web performance
-7. **Parallel Processing**: Convert multiple images simultaneously for better performance
-8. **Command Line Interface**: Use Pixmash directly from the command line
-
-If you'd like to contribute to these features, please check out our contribution guidelines.
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -394,7 +354,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 type CompressionMode = 'lossy' | 'lossless';
 
 // Output format
-type OutputFormat = 'jpg' | 'png' | 'webp' | 'svg';
+type OutputFormat = 'jpg' | 'png' | 'webp';
 
 // File information
 interface FileInfo {
@@ -413,6 +373,18 @@ interface ConversionOptions {
   outputFormat: OutputFormat;
   compressionMode: CompressionMode;
   quality?: number; 
+  watermark?: WatermarkOptions;
+}
+
+// Watermark options
+interface WatermarkOptions {
+  type: 'text' | 'image';
+  content: string; // Text content or image URL
+  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center';
+  opacity?: number; // 0-1
+  size?: number; // % of image size for text or px for image
+  color?: string; // for text watermark
+  font?: string; // for text watermark
 }
 ```
 

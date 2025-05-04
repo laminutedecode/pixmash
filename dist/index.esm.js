@@ -354,9 +354,6 @@ var convertFile = function (fileInfo, options) { return __awaiter(void 0, void 0
                 finalUrl = compressedUrl;
                 fileExtension = (_b = fileInfo.file.name.split('.').pop()) === null || _b === void 0 ? void 0 : _b.toLowerCase();
                 if (options.outputFormat !== fileExtension) {
-                    if (options.outputFormat === 'svg') {
-                        throw new Error('SVG conversion is not supported in this version');
-                    }
                     mimeTypes = {
                         jpg: 'image/jpeg',
                         png: 'image/png',

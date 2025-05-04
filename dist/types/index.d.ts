@@ -1,5 +1,5 @@
 export type CompressionMode = 'lossy' | 'lossless';
-export type OutputFormat = 'jpg' | 'png' | 'webp' | 'svg';
+export type OutputFormat = 'jpg' | 'png' | 'webp';
 export interface FileInfo {
     id: string;
     file: File;

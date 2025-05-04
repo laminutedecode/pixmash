@@ -24,10 +24,6 @@ export const convertFile = async (
 
     const fileExtension = fileInfo.file.name.split('.').pop()?.toLowerCase();
     if (options.outputFormat !== fileExtension) {
-      if (options.outputFormat === 'svg') {
-        throw new Error('SVG conversion is not supported in this version');
-      }
-
       const mimeTypes: Record<string, string> = {
         jpg: 'image/jpeg',
         png: 'image/png',
