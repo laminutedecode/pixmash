@@ -15,7 +15,8 @@ export const convertFile = async (
     const { compressedBlob, compressedUrl } = await compressImage(
       fileInfo.file,
       options.compressionMode,
-      options.compressionMode === 'lossy' ? options.quality : 100
+      options.compressionMode === 'lossy' ? options.quality : 100,
+      options.watermark
     );
 
     let finalBlob = compressedBlob;

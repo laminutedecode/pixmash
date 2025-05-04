@@ -5,18 +5,23 @@ const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-if (process.env.CI || process.env.AUTOMATED_INSTALL) {
-  console.log('Automated installation detected. Installing complete Pixmash package...');
+// Check for CI/CD or automated environments
+const isAutomatedEnvironment = () => {
+  return process.env.CI || 
+    process.env.AUTOMATED_INSTALL || 
+    process.env.npm_config_global || 
+    !process.stdin.isTTY || // This is key - detects non-interactive environments
+    process.env.PIXMASH_SKIP_POSTINSTALL;
+};
+
+// Skip interactive install in automated environments
+if (isAutomatedEnvironment()) {
+  console.log('Automated installation detected. Installing complete Pixmash package without interaction...');
   process.exit(0);
 }
 
 if (process.env.npm_config_dev) {
   console.log('Development installation detected. Skipping postinstall script.');
-  process.exit(0);
-}
-
-if (process.env.PIXMASH_SKIP_POSTINSTALL) {
-  console.log('Postinstall script skipped because PIXMASH_SKIP_POSTINSTALL is set.');
   process.exit(0);
 }
 

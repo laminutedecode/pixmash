@@ -1,4 +1,4 @@
-import { CompressionMode, CompressorResult } from '../types';
+import { CompressionMode, CompressorResult, WatermarkOptions } from '../types';
 
 export const formatFileSize = (bytes: number): string => {
   if (bytes === 0) return '0 Bytes';
@@ -27,10 +27,118 @@ const resizeImageIfNeeded = (img: HTMLImageElement, maxDimension = 2048) => {
   return { width, height };
 };
 
+const applyWatermark = async (
+  canvas: HTMLCanvasElement, 
+  ctx: CanvasRenderingContext2D,
+  watermark: WatermarkOptions
+): Promise<void> => {
+  const width = canvas.width;
+  const height = canvas.height;
+  
+  // Save the current context state
+  ctx.save();
+  
+  // Set opacity
+  ctx.globalAlpha = watermark.opacity !== undefined ? watermark.opacity : 0.5;
+  
+  // Calculate position
+  let x = 0;
+  let y = 0;
+  
+  if (watermark.type === 'text') {
+    // Apply text watermark
+    const fontSize = watermark.size !== undefined ? Math.floor(height * watermark.size / 100) : Math.floor(height * 0.05);
+    const fontFamily = watermark.font || 'Arial';
+    ctx.font = `${fontSize}px ${fontFamily}`;
+    ctx.fillStyle = watermark.color || '#ffffff';
+    
+    const textMetrics = ctx.measureText(watermark.content);
+    const textWidth = textMetrics.width;
+    const textHeight = fontSize;
+    
+    switch (watermark.position) {
+      case 'top-left':
+        x = 20;
+        y = 20 + textHeight;
+        break;
+      case 'top-right':
+        x = width - textWidth - 20;
+        y = 20 + textHeight;
+        break;
+      case 'bottom-left':
+        x = 20;
+        y = height - 20;
+        break;
+      case 'bottom-right':
+        x = width - textWidth - 20;
+        y = height - 20;
+        break;
+      case 'center':
+      default:
+        x = (width - textWidth) / 2;
+        y = (height + textHeight) / 2;
+        break;
+    }
+    
+    ctx.fillText(watermark.content, x, y);
+  } else if (watermark.type === 'image') {
+    // Apply image watermark
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      
+      img.onload = () => {
+        const imgSize = watermark.size || Math.min(width, height) * 0.2;
+        const aspectRatio = img.width / img.height;
+        const watermarkWidth = imgSize;
+        const watermarkHeight = imgSize / aspectRatio;
+        
+        switch (watermark.position) {
+          case 'top-left':
+            x = 20;
+            y = 20;
+            break;
+          case 'top-right':
+            x = width - watermarkWidth - 20;
+            y = 20;
+            break;
+          case 'bottom-left':
+            x = 20;
+            y = height - watermarkHeight - 20;
+            break;
+          case 'bottom-right':
+            x = width - watermarkWidth - 20;
+            y = height - watermarkHeight - 20;
+            break;
+          case 'center':
+          default:
+            x = (width - watermarkWidth) / 2;
+            y = (height - watermarkHeight) / 2;
+            break;
+        }
+        
+        ctx.drawImage(img, x, y, watermarkWidth, watermarkHeight);
+        resolve();
+      };
+      
+      img.onerror = () => {
+        console.error('Failed to load watermark image');
+        resolve(); // Continue without watermark rather than failing
+      };
+      
+      img.src = watermark.content;
+    });
+  }
+  
+  // Restore the context state
+  ctx.restore();
+};
+
 export const compressImage = async (
   file: File,
   compressionMode: CompressionMode,
-  quality: number = compressionMode === 'lossy' ? 80 : 100
+  quality: number = compressionMode === 'lossy' ? 80 : 100,
+  watermark?: WatermarkOptions
 ): Promise<CompressorResult> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -38,7 +146,7 @@ export const compressImage = async (
     reader.onload = (event) => {
       const img = new Image();
       
-      img.onload = () => {
+      img.onload = async () => {
         const { width, height } = resizeImageIfNeeded(img);
         
         const canvas = document.createElement('canvas');
@@ -59,6 +167,11 @@ export const compressImage = async (
         ctx.imageSmoothingQuality = 'high';
         
         ctx.drawImage(img, 0, 0, width, height);
+        
+        // Apply watermark if provided
+        if (watermark) {
+          await applyWatermark(canvas, ctx, watermark);
+        }
         
         const originalFormat = file.type.split('/')[1]?.toLowerCase() || 'jpeg';
         let mimeType = 'image/jpeg';
