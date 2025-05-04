@@ -16,18 +16,7 @@ export interface FileInfo {
 export interface ConversionOptions {
   outputFormat: OutputFormat;
   compressionMode: CompressionMode;
-  quality?: number; 
-  watermark?: WatermarkOptions;
-}
-
-export interface WatermarkOptions {
-  type: 'text' | 'image';
-  content: string; // Text content or image URL
-  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center';
-  opacity?: number; // 0-1
-  size?: number; // % of image size for text or px for image
-  color?: string; // for text watermark
-  font?: string; // for text watermark
+  quality?: number;
 }
 
 // Declare React types only when React is available
@@ -43,7 +32,6 @@ export interface CompressorResult {
 export interface CompressorOptions {
   compressionMode: CompressionMode;
   quality?: number;
-  watermark?: WatermarkOptions;
 }
 
 export interface ConvertorOptions extends CompressorOptions {

@@ -16,7 +16,6 @@ import { useCompressor } from './useCompressor';
 const useConvertor = () => {
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [converting, setConverting] = useState(false);
-  const { compressImage } = useCompressor();
 
   const addFiles = useCallback((newFiles: FileList) => {
     const fileInfoArray: FileInfo[] = Array.from(newFiles).map(createFileInfo);

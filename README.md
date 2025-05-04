@@ -38,37 +38,13 @@ function ImageConverter() {
   const [options, setOptions] = useState({
     outputFormat: 'jpg',
     compressionMode: 'lossy',
-    quality: 80,
-    watermark: {
-      type: 'text',
-      content: '© My Brand',
-      position: 'bottom-right',
-      opacity: 0.7,
-      color: '#ffffff',
-      size: 4, // % of image height
-      font: 'Arial'
-    }
+    quality: 80
   });
 
   const handleFileChange = (e) => {
     if (e.target.files?.length) {
       addFiles(e.target.files);
     }
-  };
-
-  const toggleWatermark = () => {
-    setOptions(prev => ({
-      ...prev,
-      watermark: prev.watermark ? undefined : {
-        type: 'text',
-        content: '© My Brand',
-        position: 'bottom-right',
-        opacity: 0.7,
-        color: '#ffffff',
-        size: 4,
-        font: 'Arial'
-      }
-    }));
   };
 
   return (
@@ -83,17 +59,6 @@ function ImageConverter() {
         <option value="png">PNG</option>
         <option value="webp">WebP</option>
       </select>
-      
-      <div>
-        <label>
-          <input 
-            type="checkbox" 
-            checked={!!options.watermark} 
-            onChange={toggleWatermark} 
-          />
-          Add Watermark
-        </label>
-      </div>
       
       <button onClick={() => convertAllFiles(options)} disabled={converting}>
         {converting ? 'Converting...' : 'Convert All'}
@@ -128,17 +93,6 @@ function ImageConverter() {
       <option value="webp">WebP</option>
     </select>
     
-    <div>
-      <label>
-        <input 
-          type="checkbox" 
-          v-model="useWatermark" 
-          @change="toggleWatermark"
-        />
-        Add Watermark
-      </label>
-    </div>
-    
     <button @click="convertAllFiles(options)" :disabled="converting">
       {{ converting ? 'Converting...' : 'Convert All' }}
     </button>
@@ -156,7 +110,7 @@ function ImageConverter() {
 </template>
 
 <script setup>
-import { reactive, ref } from 'vue';
+import { reactive } from 'vue';
 import { vueUseConvertor } from 'pixmash';
 
 const { 
@@ -167,41 +121,15 @@ const {
   downloadAllFiles 
 } = vueUseConvertor();
 
-const useWatermark = ref(true);
 const options = reactive({
   outputFormat: 'jpg',
   compressionMode: 'lossy',
-  quality: 80,
-  watermark: {
-    type: 'text',
-    content: '© My Brand',
-    position: 'bottom-right',
-    opacity: 0.7,
-    color: '#ffffff',
-    size: 4, // % of image height
-    font: 'Arial'
-  }
+  quality: 80
 });
 
 const handleFileChange = (e) => {
   if (e.target.files?.length) {
     addFiles(e.target.files);
-  }
-};
-
-const toggleWatermark = () => {
-  if (useWatermark.value) {
-    options.watermark = {
-      type: 'text',
-      content: '© My Brand',
-      position: 'bottom-right',
-      opacity: 0.7,
-      color: '#ffffff',
-      size: 4,
-      font: 'Arial'
-    };
-  } else {
-    options.watermark = undefined;
   }
 };
 </script>
@@ -226,14 +154,6 @@ fileInput.addEventListener('change', (e) => {
   }
 });
 
-// Add watermark checkbox to your UI
-const watermarkCheckbox = document.querySelector('#watermark-checkbox');
-let useWatermark = true;
-
-watermarkCheckbox.addEventListener('change', (e) => {
-  useWatermark = e.target.checked;
-});
-
 // Add convert button to your UI
 const convertButton = document.querySelector('#convert-button');
 convertButton.addEventListener('click', () => {
@@ -242,19 +162,6 @@ convertButton.addEventListener('click', () => {
     compressionMode: 'lossy',
     quality: 80
   };
-  
-  // Add watermark if checkbox is checked
-  if (useWatermark) {
-    options.watermark = {
-      type: 'text',
-      content: '© My Brand',
-      position: 'bottom-right',
-      opacity: 0.7,
-      color: '#ffffff',
-      size: 4,
-      font: 'Arial'
-    };
-  }
   
   convertor.convertAllFiles(options);
 });
@@ -300,47 +207,6 @@ convertAllFiles({
 });
 ```
 
-### Watermarking
-
-Pixmash supports adding text or image watermarks to your converted images:
-
-```javascript
-// With React
-const { convertAllFiles } = useConvertor();
-
-// Add a text watermark
-convertAllFiles({
-  outputFormat: 'jpg',
-  compressionMode: 'lossy',
-  quality: 80,
-  watermark: {
-    type: 'text',
-    content: '© 2023 My Company',
-    position: 'bottom-right',
-    opacity: 0.6,
-    color: '#ffffff',
-    size: 5,  // 5% of image height
-    font: 'Arial'
-  }
-});
-
-// Add an image watermark
-convertAllFiles({
-  outputFormat: 'webp',
-  compressionMode: 'lossy',
-  quality: 85,
-  watermark: {
-    type: 'image',
-    content: 'https://example.com/logo.png', // URL or data URL of your watermark
-    position: 'center',
-    opacity: 0.3,
-    size: 100 // size in pixels
-  }
-});
-```
-
-Watermark positions can be: `'top-left'`, `'top-right'`, `'bottom-left'`, `'bottom-right'`, or `'center'`.
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -372,19 +238,7 @@ interface FileInfo {
 interface ConversionOptions {
   outputFormat: OutputFormat;
   compressionMode: CompressionMode;
-  quality?: number; 
-  watermark?: WatermarkOptions;
-}
-
-// Watermark options
-interface WatermarkOptions {
-  type: 'text' | 'image';
-  content: string; // Text content or image URL
-  position: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'center';
-  opacity?: number; // 0-1
-  size?: number; // % of image size for text or px for image
-  color?: string; // for text watermark
-  font?: string; // for text watermark
+  quality?: number;
 }
 ```
 
