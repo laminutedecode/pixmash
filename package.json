@@ -7,6 +7,9 @@
     "type": "git",
     "url": "https://github.com/laminutedecode/pixmash"
   },
+  "publishConfig": {
+  "registry": "https://www.npmjs.com/package/pixmash"
+},
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
