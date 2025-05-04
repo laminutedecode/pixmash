@@ -2,18 +2,25 @@
   "name": "pixmash",
   "version": "1.0.0",
   "description": "Universal image compression and conversion library for JavaScript applications",
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/laminutedecode/pixmash"
+  },
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist"
+    "dist",
+    "scripts"
   ],
   "scripts": {
     "clean": "rimraf dist",
     "build": "npm run clean && rollup -c",
     "dev": "rollup -c -w",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "postinstall": "node scripts/postinstall.js"
   },
   "keywords": [
     "image",
@@ -24,9 +31,10 @@
     "javascript",
     "typescript"
   ],
-  "author": "",
+  "author": "La Minute De Code",
   "license": "ISC",
   "dependencies": {
+    "inquirer": "^8.2.5",
     "jszip": "^3.10.1",
     "uuid": "^9.0.0"
   },
