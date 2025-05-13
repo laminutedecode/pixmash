@@ -149,11 +149,11 @@ var compressImage = function (file_1, compressionMode_1) {
                                 if (compressionMode === 'lossless') {
                                     if (originalFormat === 'png' || originalFormat === 'gif') {
                                         mimeType = 'image/png';
-                                        bestQuality = 1.0;
+                                        bestQuality = 0.92;
                                     }
                                     else if (originalFormat === 'webp') {
                                         mimeType = 'image/webp';
-                                        bestQuality = 1.0;
+                                        bestQuality = 0.92;
                                     }
                                     else {
                                         mimeType = 'image/jpeg';
@@ -163,13 +163,15 @@ var compressImage = function (file_1, compressionMode_1) {
                                 else {
                                     if (originalFormat === 'webp') {
                                         mimeType = 'image/webp';
+                                        bestQuality = quality / 100;
                                     }
                                     else if (originalFormat === 'png' || originalFormat === 'gif') {
                                         mimeType = 'image/png';
-                                        bestQuality = 1.0;
+                                        bestQuality = quality / 100;
                                     }
                                     else {
                                         mimeType = 'image/jpeg';
+                                        bestQuality = quality / 100;
                                     }
                                     pixelCount = width * height;
                                     if (pixelCount > 4000000) {
@@ -183,7 +185,7 @@ var compressImage = function (file_1, compressionMode_1) {
                                             reject(new Error('Failed to compress image'));
                                             return;
                                         }
-                                        if (blob.size >= file.size * 0.95) {
+                                        if (blob.size >= file.size * 0.98) {
                                             if (compressionMode === 'lossy' && currentQuality && currentQuality > 0.4) {
                                                 tryCompression(currentQuality - 0.1);
                                                 return;
@@ -198,7 +200,7 @@ var compressImage = function (file_1, compressionMode_1) {
                                                 if (newCtx) {
                                                     newCtx.drawImage(img, 0, 0, newWidth, newHeight);
                                                     newCanvas.toBlob(function (resizedBlob) {
-                                                        if (!resizedBlob || resizedBlob.size >= file.size * 0.95) {
+                                                        if (!resizedBlob || resizedBlob.size >= file.size * 0.98) {
                                                             resolve({
                                                                 compressedBlob: file,
                                                                 compressedUrl: URL.createObjectURL(file)
@@ -208,7 +210,7 @@ var compressImage = function (file_1, compressionMode_1) {
                                                             var compressedUrl = URL.createObjectURL(resizedBlob);
                                                             resolve({ compressedBlob: resizedBlob, compressedUrl: compressedUrl });
                                                         }
-                                                    }, mimeType, compressionMode === 'lossy' ? 0.7 : undefined);
+                                                    }, mimeType, currentQuality !== null ? currentQuality : undefined);
                                                 }
                                                 else {
                                                     resolve({

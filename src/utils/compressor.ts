@@ -67,10 +67,10 @@ export const compressImage = async (
         if (compressionMode === 'lossless') {
           if (originalFormat === 'png' || originalFormat === 'gif') {
             mimeType = 'image/png';
-            bestQuality = 1.0; 
+            bestQuality = 0.92; 
           } else if (originalFormat === 'webp') {
             mimeType = 'image/webp';
-            bestQuality = 1.0; 
+            bestQuality = 0.92; 
           } else {        
             mimeType = 'image/jpeg';
             bestQuality = 0.95;
@@ -78,11 +78,13 @@ export const compressImage = async (
         } else {
           if (originalFormat === 'webp') {
             mimeType = 'image/webp';
+            bestQuality = quality / 100;
           } else if (originalFormat === 'png' || originalFormat === 'gif') {
             mimeType = 'image/png';
-            bestQuality = 1.0;
+            bestQuality = quality / 100;
           } else {
             mimeType = 'image/jpeg';
+            bestQuality = quality / 100;
           }
           
           const pixelCount = width * height;
@@ -101,7 +103,7 @@ export const compressImage = async (
                 return;
               }
               
-              if (blob.size >= file.size * 0.95) {
+              if (blob.size >= file.size * 0.98) {
                 if (compressionMode === 'lossy' && currentQuality && currentQuality > 0.4) {
                   tryCompression(currentQuality - 0.1);
                   return;
@@ -120,7 +122,7 @@ export const compressImage = async (
                     newCtx.drawImage(img, 0, 0, newWidth, newHeight);
                     newCanvas.toBlob(
                       (resizedBlob) => {
-                        if (!resizedBlob || resizedBlob.size >= file.size * 0.95) {
+                        if (!resizedBlob || resizedBlob.size >= file.size * 0.98) {
                           resolve({ 
                             compressedBlob: file, 
                             compressedUrl: URL.createObjectURL(file) 
@@ -131,7 +133,7 @@ export const compressImage = async (
                         }
                       },
                       mimeType,
-                      compressionMode === 'lossy' ? 0.7 : undefined
+                      currentQuality !== null ? currentQuality : undefined
                     );
                   } else {
                     resolve({ 
