@@ -133,7 +133,7 @@ var compressImage = function (file_1, compressionMode_1) {
                                 canvas.width = width;
                                 canvas.height = height;
                                 ctx = canvas.getContext('2d', {
-                                    alpha: file.type.includes('png') || file.type.includes('svg'),
+                                    alpha: true,
                                     willReadFrequently: true
                                 });
                                 if (!ctx) {
@@ -149,7 +149,7 @@ var compressImage = function (file_1, compressionMode_1) {
                                 if (compressionMode === 'lossless') {
                                     if (originalFormat === 'png' || originalFormat === 'gif') {
                                         mimeType = 'image/png';
-                                        bestQuality = null;
+                                        bestQuality = 1.0;
                                     }
                                     else if (originalFormat === 'webp') {
                                         mimeType = 'image/webp';
@@ -163,6 +163,10 @@ var compressImage = function (file_1, compressionMode_1) {
                                 else {
                                     if (originalFormat === 'webp') {
                                         mimeType = 'image/webp';
+                                    }
+                                    else if (originalFormat === 'png' || originalFormat === 'gif') {
+                                        mimeType = 'image/png';
+                                        bestQuality = 1.0;
                                     }
                                     else {
                                         mimeType = 'image/jpeg';

@@ -46,7 +46,7 @@ export const compressImage = async (
         canvas.height = height;
         
         const ctx = canvas.getContext('2d', { 
-          alpha: file.type.includes('png') || file.type.includes('svg'),
+          alpha: true,
           willReadFrequently: true
         });
         
@@ -67,7 +67,7 @@ export const compressImage = async (
         if (compressionMode === 'lossless') {
           if (originalFormat === 'png' || originalFormat === 'gif') {
             mimeType = 'image/png';
-            bestQuality = null; 
+            bestQuality = 1.0; 
           } else if (originalFormat === 'webp') {
             mimeType = 'image/webp';
             bestQuality = 1.0; 
@@ -78,6 +78,9 @@ export const compressImage = async (
         } else {
           if (originalFormat === 'webp') {
             mimeType = 'image/webp';
+          } else if (originalFormat === 'png' || originalFormat === 'gif') {
+            mimeType = 'image/png';
+            bestQuality = 1.0;
           } else {
             mimeType = 'image/jpeg';
           }
